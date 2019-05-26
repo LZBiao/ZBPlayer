@@ -249,7 +249,7 @@
                          @"creatDate":[self checkNil:creatDate],
                          @"path":[self checkNil:savePath],
                          @"duration":[self checkNil:dur]};
-    NSLog(@"音频文件信息：%@",dic);
+//    NSLog(@"音频文件信息：%@",dic);
     return dic;
 }
 

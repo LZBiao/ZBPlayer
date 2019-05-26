@@ -51,9 +51,10 @@
     }];
     
 
-    self.textField = [[NSTextField alloc]initWithFrame:NSZeroRect];
+    self.textField = [NSTextField wrappingLabelWithString:@""];//[[NSTextField alloc]initWithFrame:NSZeroRect];
     self.textField.textColor = [NSColor whiteColor];
     self.textField.alignment = NSTextAlignmentLeft;
+    self.textField.font = [NSFont systemFontOfSize:13];
     [self.textField setBezeled:NO];
     [self.textField setEditable:NO];
     [self.textField setDrawsBackground:NO];
@@ -67,7 +68,8 @@
     [self addSubview:self.textField];
     [self.textField mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.imageView.mas_right).offset(topGap);
-        make.width.mas_equalTo(@310);//设置宽，同时设置setLineBreakMode支持换行
+//        make.width.mas_equalTo(@310);//设置宽，同时设置setLineBreakMode支持换行
+        make.right.equalTo(self.mas_right).offset(-35);
         make.centerY.equalTo(self.imageView.mas_centerY);//对齐前面的控件，垂直居中（不用设置高度,自动计算高度）
     }];
     
@@ -84,8 +86,9 @@
     self.moreBtn.action = @selector(btnAction:);
     [self addSubview:self.moreBtn];
     [self.moreBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.textField.mas_right).offset(topGap);
+//        make.left.equalTo(self.textField.mas_right).offset(10);
         make.right.equalTo(self.mas_right).offset(-topGap);
+        make.width.mas_equalTo(@25);
         make.centerY.equalTo(self.textField.mas_centerY);
     }];
     
@@ -93,6 +96,7 @@
 
 
 -(void)drawSelectionInRect:(NSRect)dirtyRect{
+    NSLog(@"selectionHighlightStyle_%ld",self.selectionHighlightStyle);
     if (self.selectionHighlightStyle != NSTableViewSelectionHighlightStyleNone ){
         NSRect selectionRect = NSInsetRect(self.bounds, 1, 1);//重绘的范围
         [[NSColor colorWithWhite:0.9 alpha:1] setStroke];//绘制边框
@@ -135,11 +139,12 @@
 }
 
 -(void)imageViewAction{
-    NSLog(@"self.model.isExpand_%d",self.model.isExpand);
-    if (self.model.isExpand == NO) {
-        self.imageView.image = [NSImage imageNamed:@"list_show"];
-    }else{
+    NSLog(@"self.model.isExpand_%d,sec_%ld,Row_%ld,next_%hhd,pre_%hhd,sel_%hhd",self.model.isExpand,self.model.sectionIndex,self.model.rowIndex,self.nextRowSelected,self.previousRowSelected,self.selected);
+    
+    if (self.nextRowSelected == YES) {
         self.imageView.image = [NSImage imageNamed:@"list_hide"];
+    }else{
+        self.imageView.image = [NSImage imageNamed:@"list_show"];
     }
 }
 

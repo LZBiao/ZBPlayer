@@ -23,6 +23,7 @@
 		051CF7392291C59B001DEF5C /* AFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CF7282291C59B001DEF5C /* AFNetworkReachabilityManager.m */; };
 		051CF73A2291C59B001DEF5C /* AFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CF7292291C59B001DEF5C /* AFSecurityPolicy.m */; };
 		05226358228F105D00928050 /* ZBPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05226356228F105D00928050 /* ZBPlayer.m */; };
+		05284DD52299AC8A0002DF99 /* ZBAudioOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05284DD42299AC8A0002DF99 /* ZBAudioOutlineView.m */; };
 		05914D86228F8ECD005FCDAF /* ZBPlayerWC.m in Sources */ = {isa = PBXBuildFile; fileRef = 05914D84228F8ECD005FCDAF /* ZBPlayerWC.m */; };
 		05914D87228F8ECD005FCDAF /* ZBPlayerWC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 05914D85228F8ECD005FCDAF /* ZBPlayerWC.xib */; };
 		05C7164A228EDE180054DF0F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 05C71649228EDE180054DF0F /* AppDelegate.m */; };
@@ -53,21 +54,7 @@
 		05C716DF228EE13C0054DF0F /* ZBMacOSObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05C716DE228EE13C0054DF0F /* ZBMacOSObject.m */; };
 		05C716E2228EE14E0054DF0F /* TreeNodeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05C716E0228EE14E0054DF0F /* TreeNodeModel.m */; };
 		05C716E6228EE2B20054DF0F /* ZBTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 05C716E5228EE2B20054DF0F /* ZBTextFieldCell.m */; };
-		05E5076022963EFB008794F3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5075F22963EFA008794F3 /* AudioToolbox.framework */; };
-		05E5076222963F02008794F3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076122963F02008794F3 /* AVFoundation.framework */; };
-		05E5076422963F17008794F3 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076322963F17008794F3 /* CFNetwork.framework */; };
-		05E5076622963F20008794F3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076522963F20008794F3 /* CoreFoundation.framework */; };
-		05E5076822963F2C008794F3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076722963F2C008794F3 /* CoreGraphics.framework */; };
-		05E5076A22963FF7008794F3 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076922963FF7008794F3 /* CoreMedia.framework */; };
-		05E5076C229640F9008794F3 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076B229640F9008794F3 /* CoreText.framework */; };
-		05E5076E22964103008794F3 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076D22964103008794F3 /* CoreVideo.framework */; };
-		05E507702296410D008794F3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5076F2296410D008794F3 /* Foundation.framework */; };
-		05E5077222964119008794F3 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5077122964119008794F3 /* libbz2.tbd */; };
-		05E5077422964124008794F3 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5077322964124008794F3 /* libiconv.tbd */; };
-		05E5077622964161008794F3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5077522964161008794F3 /* OpenGL.framework */; };
-		05E507782296416D008794F3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E507772296416D008794F3 /* QuartzCore.framework */; };
-		05E5077A22964176008794F3 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5077922964176008794F3 /* Security.framework */; };
-		05E5077C22964180008794F3 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E5077B22964180008794F3 /* VideoToolbox.framework */; };
+		05D4D54D2298DB8800BAB177 /* ZBLyricObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05D4D54C2298DB8800BAB177 /* ZBLyricObject.m */; };
 		05E5077E22964EFE008794F3 /* 开发备忘.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 05E5077D22964EFE008794F3 /* 开发备忘.rtf */; };
 		7AAB474FD5CF1F1CC4545E10 /* libPods-ZBPlayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 15A5987132C4BBE1B64DE596 /* libPods-ZBPlayer.a */; };
 /* End PBXBuildFile section */
@@ -122,6 +109,8 @@
 		051CF72B2291C59B001DEF5C /* AFHTTPSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPSessionManager.h; sourceTree = "<group>"; };
 		05226356228F105D00928050 /* ZBPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBPlayer.m; sourceTree = "<group>"; };
 		05226357228F105D00928050 /* ZBPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBPlayer.h; sourceTree = "<group>"; };
+		05284DD32299AC8A0002DF99 /* ZBAudioOutlineView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioOutlineView.h; sourceTree = "<group>"; };
+		05284DD42299AC8A0002DF99 /* ZBAudioOutlineView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBAudioOutlineView.m; sourceTree = "<group>"; };
 		05914D83228F8ECD005FCDAF /* ZBPlayerWC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerWC.h; sourceTree = "<group>"; };
 		05914D84228F8ECD005FCDAF /* ZBPlayerWC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerWC.m; sourceTree = "<group>"; };
 		05914D85228F8ECD005FCDAF /* ZBPlayerWC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZBPlayerWC.xib; sourceTree = "<group>"; };
@@ -186,6 +175,9 @@
 		05C716E1228EE14E0054DF0F /* TreeNodeModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreeNodeModel.h; sourceTree = "<group>"; };
 		05C716E4228EE2B20054DF0F /* ZBTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBTextFieldCell.h; sourceTree = "<group>"; };
 		05C716E5228EE2B20054DF0F /* ZBTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBTextFieldCell.m; sourceTree = "<group>"; };
+		05D4D54B2298DB8800BAB177 /* ZBLyricObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBLyricObject.h; sourceTree = "<group>"; };
+		05D4D54C2298DB8800BAB177 /* ZBLyricObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBLyricObject.m; sourceTree = "<group>"; };
+		05D4D54E2298DDCA00BAB177 /* ZBMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBMacro.h; sourceTree = "<group>"; };
 		05E5075F22963EFA008794F3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		05E5076122963F02008794F3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		05E5076322963F17008794F3 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -212,21 +204,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05E5077C22964180008794F3 /* VideoToolbox.framework in Frameworks */,
-				05E5077A22964176008794F3 /* Security.framework in Frameworks */,
-				05E507782296416D008794F3 /* QuartzCore.framework in Frameworks */,
-				05E5077622964161008794F3 /* OpenGL.framework in Frameworks */,
-				05E5077422964124008794F3 /* libiconv.tbd in Frameworks */,
-				05E5077222964119008794F3 /* libbz2.tbd in Frameworks */,
-				05E507702296410D008794F3 /* Foundation.framework in Frameworks */,
-				05E5076E22964103008794F3 /* CoreVideo.framework in Frameworks */,
-				05E5076C229640F9008794F3 /* CoreText.framework in Frameworks */,
-				05E5076A22963FF7008794F3 /* CoreMedia.framework in Frameworks */,
-				05E5076822963F2C008794F3 /* CoreGraphics.framework in Frameworks */,
-				05E5076622963F20008794F3 /* CoreFoundation.framework in Frameworks */,
-				05E5076422963F17008794F3 /* CFNetwork.framework in Frameworks */,
-				05E5076222963F02008794F3 /* AVFoundation.framework in Frameworks */,
-				05E5076022963EFB008794F3 /* AudioToolbox.framework in Frameworks */,
 				7AAB474FD5CF1F1CC4545E10 /* libPods-ZBPlayer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,6 +305,7 @@
 				05C71648228EDE180054DF0F /* AppDelegate.h */,
 				05C71649228EDE180054DF0F /* AppDelegate.m */,
 				05914D88228FA7D4005FCDAF /* PrefixHeader.pch */,
+				05D4D54E2298DDCA00BAB177 /* ZBMacro.h */,
 				05E5077D22964EFE008794F3 /* 开发备忘.rtf */,
 				05C7164B228EDE1F0054DF0F /* Assets.xcassets */,
 				05C7164D228EDE1F0054DF0F /* MainMenu.xib */,
@@ -425,6 +403,8 @@
 				05C716C6228EE0F50054DF0F /* ZBAudioObject.m */,
 				05C716C7228EE0F50054DF0F /* ZBDataObject.h */,
 				05C716C8228EE0F50054DF0F /* ZBDataObject.m */,
+				05D4D54B2298DB8800BAB177 /* ZBLyricObject.h */,
+				05D4D54C2298DB8800BAB177 /* ZBLyricObject.m */,
 			);
 			path = object;
 			sourceTree = "<group>";
@@ -451,6 +431,8 @@
 				05C716CB228EE11C0054DF0F /* ZBPlayerSection.m */,
 				05C716CD228EE11C0054DF0F /* ZBPlayerSplitView.h */,
 				05C716D0228EE11C0054DF0F /* ZBPlayerSplitView.m */,
+				05284DD32299AC8A0002DF99 /* ZBAudioOutlineView.h */,
+				05284DD42299AC8A0002DF99 /* ZBAudioOutlineView.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -625,6 +607,8 @@
 				05C716B6228EDE910054DF0F /* MASViewAttribute.m in Sources */,
 				05C716D9228EE11C0054DF0F /* ZBPlayerSplitView.m in Sources */,
 				051CF7352291C59B001DEF5C /* AFURLResponseSerialization.m in Sources */,
+				05D4D54D2298DB8800BAB177 /* ZBLyricObject.m in Sources */,
+				05284DD52299AC8A0002DF99 /* ZBAudioOutlineView.m in Sources */,
 				051CF7302291C59B001DEF5C /* UIButton+AFNetworking.m in Sources */,
 				05C7165D228EDE760054DF0F /* FHFileManager.m in Sources */,
 				05C716C4228EE0EC0054DF0F /* ZBAudioModel.m in Sources */,

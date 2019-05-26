@@ -23,13 +23,15 @@
 #import "ZBSliderViewController.h"
 #import "ZBPlaybackModelViewController.h"
 //#import <objc/runtime.h>
+#import "ZBAudioOutlineView.h"
+
 
 #define kListNamesKey @"kListNamesKey"//存数组转字符串，播放列表路径
 
 
-@interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,VLCMediaPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate>
+@interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate,NSTableViewDelegate>
 {
-    VLCMediaPlayer *vclPlayer;
+    
 }
 @property (nonatomic, strong) ZBMacOSObject *object;
 @property (nonatomic, strong) ZBDataObject *dataObject;
@@ -63,6 +65,7 @@
 @property (nonatomic, strong) NSPopover *volumePopover;
 /**当前音量*/
 @property (nonatomic, strong) NSString *volumeString;
+/** 歌词背景窗口 */
 @property (nonatomic, strong) NSTextView *lrcTextView;
 #pragma mark - 主功能
 /** 创建列表 */
@@ -73,10 +76,9 @@
 /** 播放器主活动界面 左边存放歌曲列表，右边显示歌词等其他界面 */
 @property (nonatomic, strong) ZBPlayerSplitView *playerMainBoard;
 /** 歌曲列表层级页面 */
-@property (nonatomic, strong) NSOutlineView *audioListOutlineView;
+@property (nonatomic, strong) ZBAudioOutlineView *audioListOutlineView;
 /** 歌曲列表层级页面 的背景页面 */
 @property (nonatomic, strong) NSScrollView *audioListScrollView;
-
 
 
 #pragma mark - 数据
@@ -84,10 +86,12 @@
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 /** 历史播放记录 */
 //@property (nonatomic, strong) TreeNodeModel *historyPlayed;
-/** 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:VCLPlayer */
+/** 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:vlcPlayer */
 @property (nonatomic, assign) BOOL isVCLPlayMode;
 
 #pragma mark - 播放器控制
+/** 播发器 */
+@property (nonatomic, strong) VLCMediaPlayer *vlcPlayer;
 /** 播发器 */
 @property (nonatomic, strong) AVAudioPlayer *player;
 /** 当前播放的歌曲在总列表中的index*/
@@ -109,9 +113,10 @@
 
 /** 主色调 */
 @property (nonatomic, strong) NSColor *mainColor;
+
 @property (nonatomic, assign) CFRunLoopTimerRef timerForRemainTime;
-
-
+/** VLC 播放模式下，当前歌曲的播放进度 */
+@property (nonatomic, assign) int vlcCurrentTime;
 
 @end
 
@@ -183,7 +188,6 @@
     [self audioListOutlineView];
     [self audioListScrollView];
     [self controllBar];
-    [self vclPlayer];
     [self addNotification];
     [self addSubViews];
     [_audioListOutlineView reloadData];
@@ -221,7 +225,10 @@
     [[self.lrcTextView textContainer]setWidthTracksTextView:YES];
     [self.lrcTextView setFont:[NSFont fontWithName:@"PingFang-SC-Regular" size:17.0]];
     [self.lrcTextView setEditable:NO];
-    
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc]init];
+    style.lineSpacing = 10;//行间距
+    [self.lrcTextView setDefaultParagraphStyle:style];
+
     [textScrollView setDocumentView:self.lrcTextView];
     [_playerMainBoard addSubview:textScrollView];
     
@@ -276,18 +283,21 @@
 
 
 
--(NSOutlineView *)audioListOutlineView{
+-(ZBAudioOutlineView *)audioListOutlineView{
     if (!_audioListOutlineView) {
      
-        _audioListOutlineView = [[NSOutlineView alloc]init];
+        _audioListOutlineView = [[ZBAudioOutlineView alloc]init];
         _audioListOutlineView.delegate = self;
         _audioListOutlineView.dataSource = self;
         _audioListOutlineView.wantsLayer = YES;
+        _audioListOutlineView.tableViewDelegate = self;
+//        [_audioListOutlineView makeViewWithIdentifier:NSOutlineViewDisclosureButtonKey owner:self];
+//        _audioListOutlineView.allowsMultipleSelection = NO;
         _audioListOutlineView.backgroundColor = [NSColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:0.1];
         //    _audioListOutlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
         //    [self.contentView addSubview:s_audioListOutlineView];
         //    _audioListOutlineView.outlineTableColumn.hidden = YES;
-        NSTableColumn *column1 = [[NSTableColumn alloc]initWithIdentifier:@"name"];
+        NSTableColumn *column1 = [[NSTableColumn alloc]initWithIdentifier:@"name"];//NSOutlineViewDisclosureButtonKey
         column1.title = @" ";//@"可创建一个空的，不创建的话，内容会跑到bar底下";
         [_audioListOutlineView addTableColumn:column1];
         
@@ -328,11 +338,18 @@
     [self.playbackModelBtn setTitle:@"顺序"];
     [self playbackModelPopover];
 
-    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(270, 15, 450, 8)  superView:self.contentView target:self action:@selector(progressAction:)];
+    //NSMakeRect(270, 15, 450, 8)
+    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSZeroRect superView:self.contentView target:self action:@selector(progressAction:)];
     self.progressSlider.layer.backgroundColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:0.2].CGColor;
 //    self.progressSlider.numberOfTickMarks = 0;//标尺分节段数量，将无法设置线条颜色,且滑动指示器会变成三角模式
     self.progressSlider.appearance = [NSAppearance currentAppearance];
     self.progressSlider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
+    [self.progressSlider mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.contentView.mas_left).offset(270);
+        make.bottom.equalTo(self.contentView.mas_bottom).offset(-15);
+        make.height.mas_equalTo(8);
+        make.right.equalTo(self.contentView.mas_right).offset(-10);
+    }];
     
     self.audioNameTF = [self textField:NSMakeRect(270, 23, 450, 20) holder:@"歌名" fontsize:12];
     self.durationTF  = [self textField:NSMakeRect(270, 43, 450, 15) holder:@"时长" fontsize:10];
@@ -361,9 +378,9 @@
     return btn;
 }
 -(void)btnAction:(NSButton *)sender{
+
     if(sender.tag == 0){
        
-        
     }else if(sender.tag == 1){
         //上一曲
         [self changeAudio:NO];
@@ -389,12 +406,15 @@
 
 
 -(void)progressAction:(NSSlider *)slider{
-    NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
+//    NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
+    
+
     if (self.isVCLPlayMode == true) {
+        self.vlcCurrentTime = (int)[self.dataObject timeToDuration:slider.stringValue];
         //秒转毫秒
         NSNumber *num = [NSNumber numberWithDouble:slider.doubleValue*1000];
         VLCTime *tmpTime = [VLCTime timeWithNumber:num];
-        [vclPlayer setTime:tmpTime];
+        [self.vlcPlayer setTime:tmpTime];
     }else{
         //AVAudionPlayer
         self.player.currentTime = slider.integerValue;
@@ -406,15 +426,29 @@
 
 
 -(NSTextField *)textField:(NSRect)frame holder:(NSString *)holder fontsize:(CGFloat)size{
-    NSTextField *tf = [[NSTextField alloc]initWithFrame:frame];
+
+    NSTextField *tf = [NSTextField wrappingLabelWithString:@""];//[[NSTextField alloc]initWithFrame:frame];
     tf.textColor = [NSColor whiteColor];
     tf.alignment = NSTextAlignmentLeft;
     [tf setBezeled:NO];
     [tf setDrawsBackground:NO];
     [tf setEditable:NO];
+    [tf setSelectable:YES];
+    [tf setMaximumNumberOfLines:1];
+    [[tf cell] setLineBreakMode:NSLineBreakByCharWrapping];//支持换行模式
+    [[tf cell] setTruncatesLastVisibleLine:YES];//过长字符，显示省略号...
     tf.font = [NSFont systemFontOfSize:size];
     tf.placeholderString = holder;
+//    tf.drawsBackground = YES;
+//    tf.backgroundColor = [NSColor greenColor];
     [self.contentView addSubview:tf];
+
+    [tf mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.contentView.mas_left).offset(frame.origin.x);
+        make.bottom.equalTo(self.contentView.mas_bottom).offset(-frame.origin.y);
+        make.height.mas_equalTo(frame.size.height);
+        make.right.equalTo(self.contentView.mas_right).offset(-10);
+    }];
     return tf;
 }
 
@@ -440,7 +474,7 @@
 //    NSLog(@"volumeSliderIsChanging:%@",noti);
     self.volumeString      = noti.object[@"stringValue"];
     self.player.volume     = [self.volumeString floatValue]/100;
-    vclPlayer.audio.volume = [self.volumeString intValue];
+    self.vlcPlayer.audio.volume = [self.volumeString intValue];
 }
 
 #pragma mark 播放模式
@@ -492,7 +526,7 @@
 -(void)randomNum{
     //允许自动切换列表的时候才改变currentSection的值
     if(self.isPlaybackModelSwitchList == YES){
-        u_int32_t sectionCount = (u_int32_t)self.treeModel.childNodes.count;
+        u_int32_t sectionCount = (u_int32_t)self.treeModel.childNodes.count - 1;//减去播放历史的表
         u_int32_t section = arc4random_uniform(sectionCount);
         self.currentSection = section;
     }
@@ -513,14 +547,14 @@
     }else{
         //暂停
         if (self.isVCLPlayMode == YES) {
-            [vclPlayer pause];
+            [self.vlcPlayer pause];
             if(self.player && self.player.isPlaying == true){
                 [self.player pause];
             }
         }else{
             [self.player pause];
-            if(vclPlayer && vclPlayer.isPlaying == true){
-                [vclPlayer pause];
+            if(self.vlcPlayer && self.vlcPlayer.isPlaying == true){
+                [self.vlcPlayer pause];
             }
         }
         [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
@@ -545,10 +579,34 @@
     if(!_timerForRemainTime){
         CGFloat timeInterVal = 1.0;
         __weak __typeof(self) weakSelf = self;
+         weakSelf.vlcCurrentTime = 0;//切歌之后自动归零
         CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
             if (weakSelf.isVCLPlayMode == true) {
-                self.progressSlider.maxValue = [weakSelf.dataObject timeToDuration:vclPlayer.media.length.stringValue];
+                weakSelf.progressSlider.maxValue = [weakSelf.dataObject timeToDuration:self.vlcPlayer.media.length.stringValue];
                 weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+
+                /**
+                 //解决有些歌在最后几秒就停了（解码出错）
+                 思路1：总时长-当前播放时长，剩余时长2秒的时候，手动切歌。（不推荐使用，只能解决部分问题，超过2秒解码失败的会重新出现这样的问题）
+                 思路2：设置计时变量，每一秒计时+1，当计时变量的值等于或大于当前歌曲的总时长的时候，切歌。同时，切换进度的时候，计时变量的值也要改变
+  
+                 //出错：有些歌在最后几秒就停了
+                 //    if ([self.vlcPlayer.time.stringValue isEqualTo:self.vlcPlayer.media.length.stringValue]) {
+                 //        [self changeAudio];
+                 //    }
+                 
+                 以下是思路2的实现方式
+                 */
+                weakSelf.vlcCurrentTime = weakSelf.vlcCurrentTime + 1;
+                NSString *remaining = [weakSelf.dataObject durationToTime:(float)weakSelf.vlcCurrentTime];
+                weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,weakSelf.vlcPlayer.media.length.stringValue];//[NSString stringWithFormat:@"%@ / %@",weakSelf.vlcPlayer.time.stringValue,weakSelf.vlcPlayer.media.length.stringValue];
+               
+                double all = [weakSelf.dataObject timeToDuration:weakSelf.vlcPlayer.media.length.stringValue];
+//                double cur = [weakSelf.dataObject timeToDuration:weakSelf.vlcPlayer.time.stringValue];
+//                NSLog(@"vlcCurrentTime_%d,%d,%f",weakSelf.vlcCurrentTime,(int)all,all);
+                if ((int)all == weakSelf.vlcCurrentTime){//(all - cur < 1.5) {
+                    [weakSelf changeAudio:YES];
+                }
                 
             }else {
                 weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
@@ -574,7 +632,7 @@
 /** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
 -(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
     if (dividerIndex == 0) {
-        return 400;
+        return 500;
     }else{
         return 600;
     }
@@ -655,6 +713,7 @@
         rowView.delegate = self;
         return rowView;
     }else{
+//        idet = NSOutlineViewDisclosureButtonKey;
         ZBPlayerSection *rowView = [outlineView makeViewWithIdentifier:idet owner:self];
         
         if (rowView == nil) {
@@ -667,14 +726,52 @@
     }
 }
 
+
+
 //4.实现代理方法,绑定数据到节点视图
 -(NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item{
-    NSView *result  =  [outlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
+//    TreeNodeModel *model = item;
+//    NSString *idet = [NSString stringWithFormat:@"%ld",model.nodeLevel];
+//    if([tableColumn.identifier isEqualToString: NSOutlineViewDisclosureButtonKey]){
+//        NSView *result  =  [outlineView makeViewWithIdentifier:tableColumn.identifier owner:nil];
+//        //可以通过这个代理填充数据，也可以通过NSTableRowView（可以自定义）中的drawRect:方法赋值。注：此处需要注意子控件的类型
+//        NSArray *subviews = [result subviews];
+//        //NSImageView *imageView = subviews[0];
+//        if (subviews.count > 0) {
+//            NSTextField *field = subviews[1];
+//            field.stringValue = model.name;
+//        }
+//
+//        [result setNeedsDisplay:YES];
+//        return result;
+//    }else{
+//        return [outlineView makeViewWithIdentifier:tableColumn.identifier owner:nil];
+//    }
+
+
+
+    TreeNodeModel *model = item;
+
+    NSView *result  =  [outlineView makeViewWithIdentifier:tableColumn.identifier owner:nil];
     //可以通过这个代理填充数据，也可以通过NSTableRowView（可以自定义）中的drawRect:方法赋值。注：此处需要注意子控件的类型
     NSArray *subviews = [result subviews];
     //NSImageView *imageView = subviews[0];
     NSTextField *field = subviews[1];
-    TreeNodeModel *model = item;
+    field.stringValue = model.name;
+    [result setNeedsDisplay:YES];
+    return result;
+}
+
+
+
+-(NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row{
+    TreeNodeModel *model = (TreeNodeModel*)[self.audioListOutlineView itemAtRow:row];
+
+    NSView *result  =  [self.audioListOutlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    //可以通过这个代理填充数据，也可以通过NSTableRowView（可以自定义）中的drawRect:方法赋值。注：此处需要注意子控件的类型
+    NSArray *subviews = [result subviews];
+    //NSImageView *imageView = subviews[0];
+    NSTextField *field = subviews[1];
     field.stringValue = model.name;
     return result;
 }
@@ -692,29 +789,53 @@
 //“5.节点选择的变化事件通知
 //实现代理方法 outlineViewSelectionDidChange获取到选择节点后的通知
 -(void)outlineViewSelectionDidChange:(NSNotification *)notification{
-    NSOutlineView *treeView = notification.object;
-    NSInteger row = [treeView selectedRow];
+    ZBAudioOutlineView *treeView = notification.object;
+    NSInteger row = [treeView selectedRow];// 当前所有已展开的row的顺数index
+//    NSLog(@"[treeView itemAtRow:row].class_%@",[[treeView itemAtRow:row] class]);
     TreeNodeModel *model = (TreeNodeModel*)[treeView itemAtRow:row];
-
-    //    NSIndexSet *indexset = [treeView selectedRowIndexes];
-    //    NSInteger inlevel = treeView.indentationPerLevel;
-    //    NSIndexSet *hidenrowIndexSets = [treeView hiddenRowIndexes];
-
+    
     //获取当前item的层级序号
     NSInteger levelForRow  = [treeView levelForRow:row];
     NSInteger levelForItem = [treeView levelForItem:model];
     NSInteger childIndexForItem = [treeView childIndexForItem:model];
     NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld",row,model.name,levelForRow,levelForItem,childIndexForItem);
+    
+//    NSIndexSet *indexset = [treeView selectedRowIndexes];
+//    NSInteger inlevel = treeView.indentationPerLevel;
+//    NSIndexSet *hidenrowIndexSets = [treeView hiddenRowIndexes];
+    
     if(levelForRow == 0){
         //根列表，展开 or 关闭列表
-        BOOL isExpand = [treeView isItemExpanded:model];
-        if(isExpand == YES){
-            model.isExpand = NO;
-            [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
-        }else{
-            model.isExpand = YES;
-            [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
+//        BOOL isExpand = [treeView isItemExpanded:model];
+//        model.isExpand = isExpand;
+//        if(isExpand == YES){
+////            model.isExpand = NO;
+//            [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
+//        }else{
+////            model.isExpand = YES;
+//            [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
+//        }
+//        
+        for (int i = 0; i < self.treeModel.childNodes.count - 1; i++) {//减去随机
+            TreeNodeModel *mo = self.treeModel.childNodes[i];
+            if(i == childIndexForItem){
+                if(mo.isExpand == YES){
+                    mo.isExpand = NO;
+                    [treeView collapseItem:mo collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
+                }else{
+                    mo.isExpand = YES;
+                    [treeView expandItem:mo expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
+                }
+            }else{
+                mo.isExpand = NO;
+                [treeView collapseItem:mo collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
+            }
+            
+            [self.treeModel.childNodes removeObjectAtIndex:i];
+            [self.treeModel.childNodes insertObject:mo atIndex:i];
         }
+        
+        
 //        self.lastSection    = self.currentSection;
 //        self.currentSection = model.sectionIndex;
 //        [self reloadSectionStaus];
@@ -741,7 +862,6 @@
         }
     }
 }
-
 
 
 - (void)outlineViewSelectionIsChanging:(NSNotification *)notification{
@@ -998,7 +1118,7 @@
         ZBAudioObject *abo = [[ZBAudioObject alloc]init];
         if([abo isAVAudioPlayerMode:audio.extension] == YES){
             self.isVCLPlayMode = false;
-            [vclPlayer stop];
+            [self.vlcPlayer stop];
             
             //_player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
             _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
@@ -1011,9 +1131,16 @@
             self.isVCLPlayMode = true;
             [self.player stop];
             
+            if (!self.vlcPlayer) {
+                self.vlcPlayer = [[VLCMediaPlayer alloc]init];
+            }
             VLCMedia *movie = [VLCMedia mediaWithURL:[NSURL fileURLWithPath:audio.path]];
-            [vclPlayer setMedia:movie];
-            [vclPlayer play];
+            [self.vlcPlayer setMedia:movie];
+            self.vlcPlayer.audio.volume = [self.volumeString intValue];
+            [self.vlcPlayer play];
+            //[_vlcPlayer setDelegate:self];
+            //CGFloat currentSound = [NSSound systemVolume];
+
         }
         
 //        [[(TreeNodeModel *)[self.treeModel.childNodes lastObject] childNodes] addObject:audio];
@@ -1022,17 +1149,17 @@
 //        [self.audioListOutlineView beginUpdates];
 //        [self.audioListOutlineView insertItemsAtIndexes:[NSIndexSet indexSetWithIndex:0]  inParent:@(1) withAnimation:NSTableViewAnimationEffectFade];
 //        [self.audioListOutlineView endUpdates];
-        NSLog(@"即将播放：%@，error__%@",audio.title,error);
         self.progressSlider.integerValue = 0;
-        [self runLoopTimerForRemainTime];
-        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
-        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPause"]];
         self.audioNameTF.stringValue = audio.title;
         self.audioNameTF.toolTip = audio.title;
-        [self kugouApiSearchMusic:audio.title];
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPause"]];
+        [self runLoopTimerForRemainTime];
+        [self reloadSectionStaus];
+        //[self kugouApiSearchMusic:audio.title];
         [self QQApiSearchMusic:audio.title];
-//        [self reloadSectionStaus];
-        [ZBAudioObject getID3:audio.path];
+        NSDictionary *id3 = [ZBAudioObject getID3:audio.path];
+        NSLog(@"即将播放：%@，error__%@,ID3_%@",audio.title,error,id3);
     }
 }
 -(void)reloadSectionStaus{
@@ -1047,55 +1174,9 @@
     //[self.audioListOutlineView reloadData];
     //页面滚动到当前row
     [self.audioListOutlineView scrollRowToVisible:self.currentRow+self.currentSection+5];
-    
+    [self.audioListOutlineView deselectRow:self.currentRow+self.currentSection+5];
+
 }
-
-
-
-
-#pragma mark - VCLKit
-- (void)vclPlayer{
-    //创建是特别卡顿
-    
-    //初始化列表的时候卡顿
-//    dispatch_queue_t queue = dispatch_queue_create("net.bujige.testQueue", DISPATCH_QUEUE_CONCURRENT);
-//    dispatch_async(queue, ^{
-//        // 追加任务1
-//        vclPlayer = [[VLCMediaPlayer alloc]init];
-//        [vclPlayer setDelegate:self];
-//
-//    });
-    vclPlayer = [[VLCMediaPlayer alloc]init];
-    vclPlayer.audio.volume = [self.volumeString intValue];
-    [vclPlayer setDelegate:self];
-//    CGFloat currentSound = [NSSound systemVolume];
-}
-
-
-
-#pragma mark VLCMediaPlayerDelegate
-- (void)mediaPlayerStateChanged:(NSNotification *)aNotification{
-    NSLog(@"mediaPlayerStateChanged_%@,%@",aNotification,VLCMediaPlayerStateToString(vclPlayer.state));
-}
-- (void)mediaPlayerTimeChanged:(NSNotification *)aNotification{
-//    NSLog(@"mediaPlayerTimeChanged_%@",aNotification);
-    //,vclPlayer.remainingTime
-//    NSLog(@"%@,%@,%d,%@",vclPlayer.time.stringValue,vclPlayer.time.value,vclPlayer.time.intValue,vclPlayer.time.verboseStringValue);
-    self.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",vclPlayer.time.stringValue,vclPlayer.media.length.stringValue];
-    //出错：有些歌在最后几秒就停了
-//    if ([vclPlayer.time.stringValue isEqualTo:vclPlayer.media.length.stringValue]) {
-//        [self changeAudio];
-//    }
-    //解决有些歌在最后几秒就停了（解码出错），思路：剩余时长2秒的时候，手动切歌
-    double all = [self.dataObject timeToDuration:vclPlayer.media.length.stringValue];
-    double cur = [self.dataObject timeToDuration:vclPlayer.time.stringValue];
-    if (all - cur < 1.5) {
-        NSLog(@"%f,%f,%f",all,cur,all-cur);
-        [self changeAudio:YES];
-    }
-}
-
-
 
 
 #pragma mark - 监听窗口变化
@@ -1104,9 +1185,9 @@
  监听窗口变化
  */
 -(void)addNotification{
-    
+
     //    //观察窗口拉伸
-    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(screenResize) name:NSWindowDidResizeNotification object:nil];
+//        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(screenResize) name:NSWindowDidResizeNotification object:nil];
     //    //即将进入全屏
     //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterFull:) name:NSWindowWillEnterFullScreenNotification object:nil];
     //    //即将推出全屏
@@ -1291,7 +1372,7 @@
     [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"QQApiSearchMusic：%@",responseObject);
+//        NSLog(@"QQApiSearchMusic：%@",responseObject);
         NSArray *ar = responseObject[@"data"];
         
         //对比失误率较高，应该允许选择
@@ -1329,7 +1410,7 @@
             }
                 
 //            float pe = [self likePercent:songName OrString:dicSong];
-            NSLog(@"当前：%@，\n字段：%@",songName,dicSong);
+//            NSLog(@"当前：%@，\n字段：%@",songName,dicSong);
         }
         
         if (arr.count > 0) {
