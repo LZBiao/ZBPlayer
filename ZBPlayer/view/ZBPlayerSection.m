@@ -9,6 +9,10 @@
 #import "ZBPlayerSection.h"
 #import "Masonry.h"
 
+@interface ZBPlayerSection()<NSTextFieldDelegate>
+
+@end
+
 @implementation ZBPlayerSection
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -55,12 +59,15 @@
     self.textField.textColor = [NSColor whiteColor];
     self.textField.alignment = NSTextAlignmentLeft;
     self.textField.font = [NSFont systemFontOfSize:13];
+    self.textField.delegate = self;
     [self.textField setBezeled:NO];
     [self.textField setEditable:NO];
     [self.textField setDrawsBackground:NO];
+    [self.textField setSelectable:NO];
     [self.textField setMaximumNumberOfLines:2];//最多支持换行的数量
     [[self.textField cell] setLineBreakMode:NSLineBreakByCharWrapping];//支持换行模式
     [[self.textField cell] setTruncatesLastVisibleLine:YES];//过长字符，显示省略号...
+
     //    self.textField.wantsLayer = YES;
     //    self.textField.layer.backgroundColor = [NSColor orangeColor].CGColor;
     //    self.textField.stringValue = @"";
@@ -92,11 +99,13 @@
         make.centerY.equalTo(self.textField.mas_centerY);
     }];
     
+
+    
 }
 
 
 -(void)drawSelectionInRect:(NSRect)dirtyRect{
-    NSLog(@"selectionHighlightStyle_%ld",self.selectionHighlightStyle);
+//    NSLog(@"selectionHighlightStyle_%ld",self.selectionHighlightStyle);
     if (self.selectionHighlightStyle != NSTableViewSelectionHighlightStyleNone ){
         NSRect selectionRect = NSInsetRect(self.bounds, 1, 1);//重绘的范围
         [[NSColor colorWithWhite:0.9 alpha:1] setStroke];//绘制边框
@@ -109,8 +118,6 @@
         [selectionPath stroke];
     }
     
-    [self imageViewAction];
-
 }
 
 
@@ -136,15 +143,25 @@
 }
 -(void)mouseDown:(NSEvent *)event{
 //    [NSApp sendAction:@selector(imageViewAction) to:self.imageView from:self];
+//    NSLog(@"执行鼠标左键点击方法");
+    if (self.model.isExpand == YES) {
+        self.model.isExpand = NO;
+    }else{
+        self.model.isExpand = YES;
+    }
+    [self didSelected];
 }
 
--(void)imageViewAction{
-    NSLog(@"self.model.isExpand_%d,sec_%ld,Row_%ld,next_%hhd,pre_%hhd,sel_%hhd",self.model.isExpand,self.model.sectionIndex,self.model.rowIndex,self.nextRowSelected,self.previousRowSelected,self.selected);
+-(void)didSelected{
+//    NSLog(@"self.model.isExpand_%d,sec_%ld,Row_%ld,next_%hhd,pre_%hhd,sel_%hhd",self.model.isExpand,self.model.sectionIndex,self.model.rowIndex,self.nextRowSelected,self.previousRowSelected,self.selected);
     
-    if (self.nextRowSelected == YES) {
-        self.imageView.image = [NSImage imageNamed:@"list_hide"];
-    }else{
+    if (self.model.isExpand == YES) {
         self.imageView.image = [NSImage imageNamed:@"list_show"];
+    }else{
+        self.imageView.image = [NSImage imageNamed:@"list_hide"];
+    }
+    if(self.delegate){
+        [self.delegate playerSectionDidSelect:self];
     }
 }
 
@@ -152,6 +169,26 @@
     if(self.delegate){
         [self.delegate playerSectionMoreBtn:self];
     }
+}
+
+-(void)setIsImageExpand:(BOOL)isImageExpand{
+    _isImageExpand = isImageExpand;
+    if (isImageExpand == YES) {
+        self.model.isExpand = YES;
+        self.imageView.image = [NSImage imageNamed:@"list_show"];
+    }else{
+        self.model.isExpand = NO;
+        self.imageView.image = [NSImage imageNamed:@"list_hide"];
+    }
+}
+
+
+#pragma mark NSTextFieldDelegate
+
+
+
+-(void)textFieldAction{
+    NSLog(@"textFieldAction");
 }
 
 

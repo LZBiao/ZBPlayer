@@ -22,15 +22,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSTextField *textField;//ZBTextFieldCell
 @property (nonatomic, strong) NSButton *moreBtn;//导入
 @property (nonatomic, strong) TreeNodeModel *model;
+@property (nonatomic, assign) BOOL isImageExpand;
 @property (nonatomic, assign) id <ZBPlayerSectionDelegate> delegate;
 
 -(instancetype)initWithLevel:(NSInteger)level;
-
+-(void)didSelected;
 
 @end
 @protocol ZBPlayerSectionDelegate <NSObject>
 
+-(void)playerSectionDidSelect:(ZBPlayerSection *)playerSection;
+
 -(void)playerSectionMoreBtn:(ZBPlayerSection *)playerSection;
+
+
 
 @end
 NS_ASSUME_NONNULL_END

@@ -730,25 +730,6 @@
 
 //4.实现代理方法,绑定数据到节点视图
 -(NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item{
-//    TreeNodeModel *model = item;
-//    NSString *idet = [NSString stringWithFormat:@"%ld",model.nodeLevel];
-//    if([tableColumn.identifier isEqualToString: NSOutlineViewDisclosureButtonKey]){
-//        NSView *result  =  [outlineView makeViewWithIdentifier:tableColumn.identifier owner:nil];
-//        //可以通过这个代理填充数据，也可以通过NSTableRowView（可以自定义）中的drawRect:方法赋值。注：此处需要注意子控件的类型
-//        NSArray *subviews = [result subviews];
-//        //NSImageView *imageView = subviews[0];
-//        if (subviews.count > 0) {
-//            NSTextField *field = subviews[1];
-//            field.stringValue = model.name;
-//        }
-//
-//        [result setNeedsDisplay:YES];
-//        return result;
-//    }else{
-//        return [outlineView makeViewWithIdentifier:tableColumn.identifier owner:nil];
-//    }
-
-
 
     TreeNodeModel *model = item;
 
@@ -786,6 +767,10 @@
 }
 
 
+-(void)outlineView:(NSOutlineView *)outlineView didClickTableColumn:(NSTableColumn *)tableColumn{
+    NSLog(@"tableColumn_%@",tableColumn);
+}
+
 //“5.节点选择的变化事件通知
 //实现代理方法 outlineViewSelectionDidChange获取到选择节点后的通知
 -(void)outlineViewSelectionDidChange:(NSNotification *)notification{
@@ -798,24 +783,13 @@
     NSInteger levelForRow  = [treeView levelForRow:row];
     NSInteger levelForItem = [treeView levelForItem:model];
     NSInteger childIndexForItem = [treeView childIndexForItem:model];
-    NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld",row,model.name,levelForRow,levelForItem,childIndexForItem);
+//    NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld",row,model.name,levelForRow,levelForItem,childIndexForItem);
     
 //    NSIndexSet *indexset = [treeView selectedRowIndexes];
 //    NSInteger inlevel = treeView.indentationPerLevel;
 //    NSIndexSet *hidenrowIndexSets = [treeView hiddenRowIndexes];
     
     if(levelForRow == 0){
-        //根列表，展开 or 关闭列表
-//        BOOL isExpand = [treeView isItemExpanded:model];
-//        model.isExpand = isExpand;
-//        if(isExpand == YES){
-////            model.isExpand = NO;
-//            [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
-//        }else{
-////            model.isExpand = YES;
-//            [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
-//        }
-//        
         for (int i = 0; i < self.treeModel.childNodes.count - 1; i++) {//减去随机
             TreeNodeModel *mo = self.treeModel.childNodes[i];
             if(i == childIndexForItem){
@@ -828,17 +802,25 @@
                 }
             }else{
                 mo.isExpand = NO;
-                [treeView collapseItem:mo collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
+                [treeView collapseItem:mo collapseChildren:NO];
             }
-            
+
             [self.treeModel.childNodes removeObjectAtIndex:i];
             [self.treeModel.childNodes insertObject:mo atIndex:i];
         }
-        
-        
-//        self.lastSection    = self.currentSection;
-//        self.currentSection = model.sectionIndex;
-//        [self reloadSectionStaus];
+
+        for (id view in treeView.subviews) {
+            if([view isKindOfClass:[ZBPlayerSection class]]){
+                ZBPlayerSection *sec = (ZBPlayerSection *)view;
+                TreeNodeModel *mo = self.treeModel.childNodes[sec.model.rowIndex];
+                sec.model.isExpand = mo.isExpand;
+                if(sec.model.rowIndex == childIndexForItem){
+                    //NSLog(@"ZBPlayerSection_2_%ld,%ld",sec.model.rowIndex,childIndexForItem);
+                    [sec didSelected];
+                }
+            }
+        }
+
     }else if (levelForRow == 1) {
        
         //列表第一层 播放
@@ -865,20 +847,20 @@
 
 
 - (void)outlineViewSelectionIsChanging:(NSNotification *)notification{
-    NSLog(@"outlineViewSelectionIsChanging_%@",notification);
+//    NSLog(@"outlineViewSelectionIsChanging_%@",notification);
 }
 
 - (void)outlineViewItemWillExpand:(NSNotification *)notification{
-    NSLog(@"outlineViewItemWillExpand_%@",notification);
+//    NSLog(@"outlineViewItemWillExpand_%@",notification);
 }
 - (void)outlineViewItemDidExpand:(NSNotification *)notification{
-    NSLog(@"outlineViewItemDidExpand_%@",notification);
+//    NSLog(@"outlineViewItemDidExpand_%@",notification);
 }
 - (void)outlineViewItemWillCollapse:(NSNotification *)notification{
-    NSLog(@"outlineViewItemWillCollapse_%@",notification);
+//    NSLog(@"outlineViewItemWillCollapse_%@",notification);
 }
 - (void)outlineViewItemDidCollapse:(NSNotification *)notification{
-    NSLog(@"outlineViewItemDidCollapse_%@",notification);
+//    NSLog(@"outlineViewItemDidCollapse_%@",notification);
 }
 
 #pragma mark - ZBPlayerRowDelegate
@@ -924,6 +906,37 @@
 -(void)playerSectionMoreBtn:(ZBPlayerSection *)playerSection{
     [self openPanel];
 }
+-(void)playerSectionDidSelect:(ZBPlayerSection *)playerSection{
+    
+    TreeNodeModel *myModel = playerSection.model;
+    for (int i = 0; i < self.treeModel.childNodes.count - 1; i++) {//减去随机
+        TreeNodeModel *mo = self.treeModel.childNodes[i];
+        if(i == myModel.rowIndex){
+            mo = myModel;
+            if(myModel.isExpand == YES){
+                [self.audioListOutlineView expandItem:myModel expandChildren:NO];
+            }else{
+                [self.audioListOutlineView collapseItem:myModel collapseChildren:NO];
+            }
+        }else{
+            if(myModel.isExpand == YES){
+                mo.isExpand = NO;
+                [self.audioListOutlineView collapseItem:mo collapseChildren:NO];
+            }
+        }
+        [self.treeModel.childNodes removeObjectAtIndex:i];
+        [self.treeModel.childNodes insertObject:mo atIndex:i];
+    }
+    
+    for (id view in self.audioListOutlineView.subviews) {
+        if([view isKindOfClass:[ZBPlayerSection class]]){
+            ZBPlayerSection *sec = (ZBPlayerSection *)view;
+            TreeNodeModel *mo = self.treeModel.childNodes[sec.model.rowIndex];
+            sec.isImageExpand = mo.isExpand;
+        }
+    }
+}
+
 
 #pragma mark - 面板：NSOpenPanel 读取电脑文件 获取文件名，路径
 - (void)openPanel{
@@ -1009,6 +1022,8 @@
         NSMutableArray *audios = localMusics[i];
         //根节点
         TreeNodeModel *rootNode1 = [self node:[NSString stringWithFormat:@"%@ [%ld]",sectionTitles[i],audios.count] level:0 superLevel:-1];
+        rootNode1.sectionIndex = -1;//根节点没有sectionIndex
+        rootNode1.rowIndex = i;
         
         //排序
         //NSMutableArray *sortAudios = [weakSelf defaultSort:audios];
@@ -1024,6 +1039,8 @@
         [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
     }
     TreeNodeModel *history   = [self node:@"播放历史" level:0 superLevel:-1];
+    history.sectionIndex = -1;//根节点没有sectionIndex
+    history.rowIndex     = localMusics.count;
     [self.treeModel.childNodes addObject:history];
     [self.audioListOutlineView reloadData];
 }
@@ -1165,10 +1182,27 @@
 -(void)reloadSectionStaus{
     //如果切换了列表，收起旧列表，展开当前歌曲所在列表
     if(self.currentSection != self.lastSection){
-        //[self.treeModel.childNodes[self.currentSection] setIsExpand:YES];
-        //[self.treeModel.childNodes[self.lastSection] setIsExpand:NO];
-        [self.audioListOutlineView collapseItem:self.treeModel.childNodes[self.lastSection]  collapseChildren:YES];
-        [self.audioListOutlineView expandItem:self.treeModel.childNodes[self.currentSection] expandChildren:YES];
+        for (int i = 0; i < self.treeModel.childNodes.count - 1; i++) {//减去随机
+            TreeNodeModel *mo = self.treeModel.childNodes[i];
+            if (i == self.currentSection){
+                mo.isExpand = YES;
+                [self.audioListOutlineView expandItem:mo expandChildren:YES];
+            }
+            else{
+                mo.isExpand = NO;
+                [self.audioListOutlineView collapseItem:mo  collapseChildren:YES];
+            }
+            [self.treeModel.childNodes removeObjectAtIndex:i];
+            [self.treeModel.childNodes insertObject:mo atIndex:i];
+        }
+        
+        for (id view in self.audioListOutlineView.subviews) {
+            if([view isKindOfClass:[ZBPlayerSection class]]){
+                ZBPlayerSection *sec = (ZBPlayerSection *)view;
+                TreeNodeModel *mo = self.treeModel.childNodes[sec.model.rowIndex];
+                sec.isImageExpand = mo.isExpand;
+            }
+        }
     }
     NSLog(@"currSec:%ld,lastSecc:%ld,currRowc:%ld,lastRowc:%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow);
     //[self.audioListOutlineView reloadData];
