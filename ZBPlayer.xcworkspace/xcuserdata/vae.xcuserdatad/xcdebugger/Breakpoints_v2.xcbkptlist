@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZBPlayer/view/ZBPlayerSection.m"
-            timestampString = "580928668.190006"
+            filePath = "ZBPlayer/windows/ZBPlayer.m"
+            timestampString = "584613913.952563"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
-            landmarkName = "-mouseDown:"
+            startingLineNumber = "865"
+            endingLineNumber = "865"
+            landmarkName = "-playerRow:didSelectRowForModel:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZBPlayer/view/ZBPlayerSection.m"
-            timestampString = "580928668.190758"
+            filePath = "ZBPlayer/windows/ZBPlayer.m"
+            timestampString = "584613913.954643"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "148"
-            endingLineNumber = "148"
-            landmarkName = "-mouseDown:"
+            startingLineNumber = "898"
+            endingLineNumber = "898"
+            landmarkName = "-playerRowMoreBtn:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,13 +41,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZBPlayer/view/ZBPlayerSection.m"
-            timestampString = "580928668.190819"
+            filePath = "ZBPlayer/windows/ZBPlayer.m"
+            timestampString = "584613913.954896"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
-            landmarkName = "-setIsImageExpand:"
+            startingLineNumber = "529"
+            endingLineNumber = "529"
+            landmarkName = "-randomNum"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -57,13 +57,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZBPlayer/view/ZBPlayerSection.m"
-            timestampString = "580928668.1908849"
+            filePath = "ZBPlayer/windows/ZBPlayer.m"
+            timestampString = "584613913.95515"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
-            landmarkName = "-setIsImageExpand:"
+            startingLineNumber = "1221"
+            endingLineNumber = "1221"
+            landmarkName = "-reloadSectionStaus"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

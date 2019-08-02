@@ -10,7 +10,6 @@
 
 @class ZBAudioModel;
 
-//<NSCoding>
 @interface TreeNodeModel : NSObject
 
 @property (nonatomic, strong) ZBAudioModel *audio;

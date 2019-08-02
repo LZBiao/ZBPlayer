@@ -24,7 +24,7 @@
 #import "ZBPlaybackModelViewController.h"
 //#import <objc/runtime.h>
 #import "ZBAudioOutlineView.h"
-
+#import "KRCOperate.h"
 
 #define kListNamesKey @"kListNamesKey"//存数组转字符串，播放列表路径
 
@@ -168,6 +168,9 @@
     [self center];
     
     [self viewInWindow];
+    
+    KRCOperate *krc = [KRCOperate currentKRCOperate];
+    [krc test];
 }
 
 -(void)viewInWindow{
@@ -403,12 +406,8 @@
     }
 }
 
-
-
 -(void)progressAction:(NSSlider *)slider{
 //    NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
-    
-
     if (self.isVCLPlayMode == true) {
         self.vlcCurrentTime = (int)[self.dataObject timeToDuration:slider.stringValue];
         //秒转毫秒
@@ -419,11 +418,7 @@
         //AVAudionPlayer
         self.player.currentTime = slider.integerValue;
     }
-
-
 }
-
-
 
 -(NSTextField *)textField:(NSRect)frame holder:(NSString *)holder fontsize:(CGFloat)size{
 
@@ -1187,10 +1182,9 @@
             if (i == self.currentSection){
                 mo.isExpand = YES;
                 [self.audioListOutlineView expandItem:mo expandChildren:YES];
-            }
-            else{
+            } else{
                 mo.isExpand = NO;
-                [self.audioListOutlineView collapseItem:mo  collapseChildren:YES];
+                [self.audioListOutlineView collapseItem:mo collapseChildren:YES];
             }
             [self.treeModel.childNodes removeObjectAtIndex:i];
             [self.treeModel.childNodes insertObject:mo atIndex:i];
@@ -1204,11 +1198,29 @@
             }
         }
     }
+    
+    //位置计算错误
+//    for (id view in self.audioListOutlineView.subviews) {
+//        if([view isKindOfClass:[ZBPlayerRow class]]){
+//            ZBPlayerRow *ro = (ZBPlayerRow *)view;
+//            NSLog(@"ro.model.rowIndex_%ld",ro.model.rowIndex);
+//            if(ro.model.sectionIndex == self.currentSection){
+//                if(ro.model.rowIndex == self.currentRow){
+//                    ro.isSelectedMe = YES;
+//                }else{
+//                    ro.isSelectedMe = NO;
+//                }
+//            }else{
+//                ro.isSelectedMe = NO;
+//            }
+//        }
+//    }
     NSLog(@"currSec:%ld,lastSecc:%ld,currRowc:%ld,lastRowc:%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow);
     //[self.audioListOutlineView reloadData];
     //页面滚动到当前row
-    [self.audioListOutlineView scrollRowToVisible:self.currentRow+self.currentSection+5];
-    [self.audioListOutlineView deselectRow:self.currentRow+self.currentSection+5];
+    [self.audioListOutlineView scrollRowToVisible:self.currentRow + self.currentSection + 5];
+    [self.audioListOutlineView deselectRow:self.currentRow + self.currentSection + 5];
+
 
 }
 
@@ -1455,13 +1467,13 @@
             str = [str stringByReplacingOccurrencesOfString:@"\n " withString:@"\n"];
             weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",str];
         }else{
-            
-            NSString *d = [NSString stringWithFormat:@"currentSection：%ld，lastSection：%ld,currentRow：%ld,lastRow：%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow];
-            weakSelf.lrcTextView.string = [NSString stringWithFormat:@"歌词下载失败：err_code: %ld\n%@",[responseObject[@"err_code"] integerValue],d];
+            weakSelf.lrcTextView.string = keyword;
         }
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"searchMusicFromKugouError：%@",error);
+        NSString *d = [NSString stringWithFormat:@"currentSection：%ld，lastSection：%ld,currentRow：%ld,lastRow：%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow];
+        weakSelf.lrcTextView.string = [NSString stringWithFormat:@"歌词下载失败：err_code: %ld\n%@",error.code,d];
     }];
 }
 

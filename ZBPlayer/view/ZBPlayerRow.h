@@ -25,12 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZBPlayerRow : NSTableRowView
 
+//@property (nonatomic, assign) BOOL isSelectedMe;
 @property (nonatomic, strong) NSImageView *imageView;
 @property (nonatomic, strong) NSTextField *textField;
 @property (nonatomic, strong) NSButton *moreBtn;//打开更多
 @property (nonatomic, strong) TreeNodeModel *model;
 @property (nonatomic, weak) id <ZBPlayerRowDelegate> delegate;
 -(instancetype)initWithLevel:(NSInteger)level;
+
 @end
 
 

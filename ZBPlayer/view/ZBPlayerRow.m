@@ -30,7 +30,7 @@
     if (self.selectionHighlightStyle != NSTableViewSelectionHighlightStyleNone ){
         NSRect selectionRect = NSInsetRect(self.bounds, 1, 1);//重绘的范围
         [[NSColor colorWithWhite:0.9 alpha:1] setStroke];//绘制边框
-        //[[NSColor greenColor] setFill];//绘制背景色
+//        [[NSColor greenColor] setFill];//绘制背景色
         
         //重绘
         NSBezierPath *selectionPath = [NSBezierPath bezierPathWithRoundedRect:selectionRect xRadius:10 yRadius:20];
@@ -38,8 +38,18 @@
         [selectionPath fill];
         [selectionPath stroke];
     }
-    
 }
+
+//-(void)setIsSelectedMe:(BOOL)isSelectedMe{
+//    _isSelectedMe = isSelectedMe;
+//    if (isSelectedMe == YES) {
+//        self.layer.backgroundColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:0.3].CGColor;
+//    }else{
+//        self.layer.backgroundColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:0.0].CGColor;
+//    }
+//}
+
+
 -(instancetype)initWithLevel:(NSInteger)level{
     if(self = [super init]){
         [self creatViewWithLevel:level];

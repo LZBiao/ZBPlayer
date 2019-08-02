@@ -22,6 +22,9 @@
 		051CF7382291C59B001DEF5C /* AFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CF7262291C59B001DEF5C /* AFURLRequestSerialization.m */; };
 		051CF7392291C59B001DEF5C /* AFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CF7282291C59B001DEF5C /* AFNetworkReachabilityManager.m */; };
 		051CF73A2291C59B001DEF5C /* AFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CF7292291C59B001DEF5C /* AFSecurityPolicy.m */; };
+		0521C2E322D87F5900C7201E /* KRCOperate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0521C2DF22D87F5900C7201E /* KRCOperate.m */; };
+		0521C2E422D87F5900C7201E /* jay.krc in Resources */ = {isa = PBXBuildFile; fileRef = 0521C2E022D87F5900C7201E /* jay.krc */; };
+		0521C2E522D87F5900C7201E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0521C2E122D87F5900C7201E /* README.md */; };
 		05226358228F105D00928050 /* ZBPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05226356228F105D00928050 /* ZBPlayer.m */; };
 		05284DD52299AC8A0002DF99 /* ZBAudioOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05284DD42299AC8A0002DF99 /* ZBAudioOutlineView.m */; };
 		05914D86228F8ECD005FCDAF /* ZBPlayerWC.m in Sources */ = {isa = PBXBuildFile; fileRef = 05914D84228F8ECD005FCDAF /* ZBPlayerWC.m */; };
@@ -107,6 +110,10 @@
 		051CF7292291C59B001DEF5C /* AFSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFSecurityPolicy.m; sourceTree = "<group>"; };
 		051CF72A2291C59B001DEF5C /* AFCompatibilityMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFCompatibilityMacros.h; sourceTree = "<group>"; };
 		051CF72B2291C59B001DEF5C /* AFHTTPSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPSessionManager.h; sourceTree = "<group>"; };
+		0521C2DF22D87F5900C7201E /* KRCOperate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KRCOperate.m; sourceTree = "<group>"; };
+		0521C2E022D87F5900C7201E /* jay.krc */ = {isa = PBXFileReference; lastKnownFileType = file; path = jay.krc; sourceTree = "<group>"; };
+		0521C2E122D87F5900C7201E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		0521C2E222D87F5900C7201E /* KRCOperate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRCOperate.h; sourceTree = "<group>"; };
 		05226356228F105D00928050 /* ZBPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBPlayer.m; sourceTree = "<group>"; };
 		05226357228F105D00928050 /* ZBPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBPlayer.h; sourceTree = "<group>"; };
 		05284DD32299AC8A0002DF99 /* ZBAudioOutlineView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioOutlineView.h; sourceTree = "<group>"; };
@@ -268,6 +275,17 @@
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
+		0521C2DE22D87F5900C7201E /* KRCOperation */ = {
+			isa = PBXGroup;
+			children = (
+				0521C2DF22D87F5900C7201E /* KRCOperate.m */,
+				0521C2E022D87F5900C7201E /* jay.krc */,
+				0521C2E122D87F5900C7201E /* README.md */,
+				0521C2E222D87F5900C7201E /* KRCOperate.h */,
+			);
+			path = KRCOperation;
+			sourceTree = "<group>";
+		};
 		05226348228EE77D00928050 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -319,6 +337,7 @@
 		05C71659228EDE4C0054DF0F /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				0521C2DE22D87F5900C7201E /* KRCOperation */,
 				051CF7072291C59B001DEF5C /* AFNetworking */,
 				05C716B8228EDEC90054DF0F /* ISSoundAdditions */,
 				05C71692228EDE910054DF0F /* Masonry */,
@@ -537,6 +556,8 @@
 				05C7164C228EDE1F0054DF0F /* Assets.xcassets in Resources */,
 				05C7164F228EDE1F0054DF0F /* MainMenu.xib in Resources */,
 				05914D87228F8ECD005FCDAF /* ZBPlayerWC.xib in Resources */,
+				0521C2E522D87F5900C7201E /* README.md in Resources */,
+				0521C2E422D87F5900C7201E /* jay.krc in Resources */,
 				05C716B7228EDE910054DF0F /* Info.plist in Resources */,
 				05E5077E22964EFE008794F3 /* 开发备忘.rtf in Resources */,
 			);
@@ -614,6 +635,7 @@
 				05C716C4228EE0EC0054DF0F /* ZBAudioModel.m in Sources */,
 				051CF7342291C59B001DEF5C /* AFImageDownloader.m in Sources */,
 				051CF7322291C59B001DEF5C /* UIWebView+AFNetworking.m in Sources */,
+				0521C2E322D87F5900C7201E /* KRCOperate.m in Sources */,
 				05C716AE228EDE910054DF0F /* ViewController+MASAdditions.m in Sources */,
 				05C716B3228EDE910054DF0F /* View+MASAdditions.m in Sources */,
 				05C716D8228EE11C0054DF0F /* ZBPlaybackModelViewController.m in Sources */,
