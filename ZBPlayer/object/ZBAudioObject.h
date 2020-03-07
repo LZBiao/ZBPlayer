@@ -70,6 +70,14 @@ NS_ASSUME_NONNULL_BEGIN
  获取音频文件的元数据 ID3
  */
 +(NSDictionary *)getID3:(NSString *)filePath;
+
+
++ (NSMutableArray *)getMusicList;
+
+/**
+ 保存播放列表到本地
+ */
++ (void)saveMusicList:(NSMutableArray *)list;
 @end
 
 NS_ASSUME_NONNULL_END

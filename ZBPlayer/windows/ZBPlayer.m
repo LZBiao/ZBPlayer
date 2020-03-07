@@ -956,9 +956,17 @@
 
     self.currentRow = 0;
     //获取缓存在本地的列表路径
-    NSMutableArray *arr =  [ZBAudioObject getPlayList];
-    if (arr.count > 0) {
-        [self localFiles:arr];
+    //1.重新查找
+//    NSMutableArray *arr =  [ZBAudioObject getPlayList];
+//    if (arr.count > 0) {
+//        [self localFiles:arr];
+//    }
+    //2. 从历史记录中读取
+    NSMutableArray *musicList = [ZBAudioObject getMusicList];
+    if (musicList.count > 0) {
+        self.treeModel = [[TreeNodeModel alloc]init];
+        self.treeModel.childNodes = [NSMutableArray arrayWithArray:musicList];
+        [self.audioListOutlineView reloadData];
     }else{
         self.treeModel = [[TreeNodeModel alloc]init];
         //根节点
@@ -966,7 +974,8 @@
         TreeNodeModel *history   = [self node:@"播放历史" level:0 superLevel:-1];
         [self.treeModel.childNodes addObjectsFromArray:@[rootNode1,history]];
     }
-   
+
+
 }
 
 -(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level superLevel:(NSInteger)superLevel{
@@ -1038,6 +1047,10 @@
     history.rowIndex     = localMusics.count;
     [self.treeModel.childNodes addObject:history];
     [self.audioListOutlineView reloadData];
+    
+
+    [ZBAudioObject saveMusicList:self.treeModel.childNodes];
+
 }
 
 #pragma mark - 音乐

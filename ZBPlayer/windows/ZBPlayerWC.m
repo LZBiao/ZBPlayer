@@ -849,6 +849,9 @@
         TreeNodeModel *rootNode1 = [self node:@"默认列表" level:0 superLevel:-1];
         [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
     }
+
+//    NSMutableArray *musicList = [ZBAudioObject getMusicList];
+//    NSLog(@"ZBAudioObject____%@",musicList[0]);
     
 }
 
@@ -915,6 +918,8 @@
         [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
     }
     [self.audioListOutlineView reloadData];
+//    [ZBAudioObject saveMusicList:[NSMutableArray arrayWithObject:@[self.treeModel]]];
+
 }
 
 #pragma mark - 音乐

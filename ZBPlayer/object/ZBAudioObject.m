@@ -11,6 +11,8 @@
 #import "FHFileManager.h"
 #import <AVFoundation/AVFoundation.h>
 
+#import "TreeNodeModel.h"
+
 
 @implementation ZBAudioObject
 
@@ -177,6 +179,105 @@
 + (void)savePlayList:(NSMutableArray *)list {
     [FHFileManager archiverAtPath:kPATH_DOCUMENT fileName:@"ZBAudioList" object:list encodeObjectKey:@"ZBAudioListKey"];
 }
+
++ (NSMutableArray *)getMusicList {
+    
+    
+    NSMutableArray *list = [FHFileManager unarchiverAtPath:kPATH_DOCUMENT fileName:@"ZBMusicList" encodeObjectKey:@"ZBMusicListKey"];
+    NSMutableArray *mainList = [NSMutableArray array];
+    for (int i = 0; i < list.count; i++) {
+        NSDictionary *mainDic = list[i];
+        TreeNodeModel *mainNode = [[TreeNodeModel alloc]init];
+
+        NSMutableArray *childNodes = [NSMutableArray array];
+        for (int j = 0; j < [mainDic[@"childNodes"] count]; j++) {
+            
+            NSDictionary *childDic = mainDic[@"childNodes"][j];
+            TreeNodeModel *childNode = [[TreeNodeModel alloc]init];
+
+            ZBAudioModel *childAudio = [[ZBAudioModel alloc]init];
+            childAudio.title = childDic[@"audio"][@"title"];
+            childAudio.path = childDic[@"audio"][@"path"];
+            childAudio.extension = childDic[@"audio"][@"extension"];
+
+            childNode.audio = childAudio;;
+            childNode.name = childDic[@"name"];
+            childNode.childNodes = childDic[@"childNodes"];//
+            childNode.isExpand = [childDic[@"isExpand"] boolValue];
+            childNode.nodeLevel = [childDic[@"nodeLevel"] integerValue];//当前层级
+            childNode.superLevel = [childDic[@"superLevel"] integerValue];//父层级
+            childNode.sectionIndex = [childDic[@"sectionIndex"] integerValue];
+            childNode.rowIndex = [childDic[@"rowIndex"] integerValue];
+
+            [childNodes addObject:childNode];
+          }
+        
+        ZBAudioModel *mainAudio = [[ZBAudioModel alloc]init];
+        mainAudio.title = mainDic[@"audio"][@"title"];
+        mainAudio.path = mainDic[@"audio"][@"path"];
+        mainAudio.extension = mainDic[@"audio"][@"extension"];
+        
+        mainNode.audio = mainAudio;;
+        mainNode.name = mainDic[@"name"];
+        mainNode.childNodes = childNodes;//
+        mainNode.isExpand = [mainDic[@"isExpand"] boolValue];
+        mainNode.nodeLevel = [mainDic[@"nodeLevel"] integerValue];//当前层级
+        mainNode.superLevel = [mainDic[@"superLevel"] integerValue];//父层级
+        mainNode.sectionIndex = [mainDic[@"sectionIndex"] integerValue];
+        mainNode.rowIndex = [mainDic[@"rowIndex"] integerValue];
+
+        [mainList addObject:mainNode];
+
+    }
+    
+    
+    return mainList;
+}
+
+
+
+/**
+ 保存播放列表到本地
+ */
++ (void)saveMusicList:(NSMutableArray *)list {
+    
+    //直接保存模型会报错，所以转换成基本数组模型
+    NSMutableArray *mainList = [NSMutableArray array];
+    for (int i = 0; i < list.count ; i++) {
+        TreeNodeModel *mainNode = list[i];
+
+        NSMutableArray *childs = [NSMutableArray array];
+        for (int j = 0; j < mainNode.childNodes.count ; j++) {
+            TreeNodeModel *childNode = mainNode.childNodes[j];
+            NSDictionary *childAudio = @{@"title":@"",@"path":@"",@"extension":@""};;
+            if (childNode.audio) {
+                childAudio = @{@"title":childNode.audio.title,@"path":childNode.audio.path == nil ? @"" : childNode.audio.path,@"extension":childNode.audio.extension};
+            }
+            NSDictionary * childDic = @{@"audio":childAudio,@"name":childNode.name,
+                                        @"isExpand":@(childNode.isExpand),@"nodeLevel":@(childNode.nodeLevel),
+                                        @"superLevel":@(childNode.superLevel),@"sectionIndex":@(childNode.sectionIndex),
+                                        @"rowIndex":@(childNode.rowIndex),@"childNodes":childNode.childNodes};
+            [childs addObject:childDic];
+            
+        }
+        
+        NSDictionary *audio = @{@"title":@"",@"path":@"",@"extension":@""};;
+        if (mainNode.audio) {
+            audio = @{@"title":mainNode.audio.title,@"path":mainNode.audio.path == nil ? @"" : mainNode.audio.path,@"extension":mainNode.audio.extension};
+        }
+        NSDictionary *dic = @{@"audio":audio,@"name":mainNode.name,
+                              @"isExpand":@(mainNode.isExpand),@"nodeLevel":@(mainNode.nodeLevel),
+                              @"superLevel":@(mainNode.superLevel),@"sectionIndex":@(mainNode.sectionIndex),
+                              @"rowIndex":@(mainNode.rowIndex),@"childNodes":childs};
+        
+        [mainList addObject:dic];
+        
+    }
+
+    [FHFileManager archiverAtPath:kPATH_DOCUMENT fileName:@"ZBMusicList" object:mainList encodeObjectKey:@"ZBMusicListKey"];
+}
+
+
 
 
 #pragma mark 获取音频文件的元数据 ID3
